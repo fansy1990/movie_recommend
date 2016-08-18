@@ -7,12 +7,13 @@
 
 <!-- Loading Bootstrap -->
 <link href="css/bootstrap.min.css" rel="stylesheet">
+<!-- <link href="css/jquery-ui.css" rel="stylesheet"> -->
 
 
 <!-- Loading Flat UI -->
 <link href="css/flat-ui.css" rel="stylesheet">
 
-   <link rel="shortcut icon" href="../../dist/img/favicon.ico">
+<link rel="shortcut icon" href="../../dist/img/favicon.ico">
 <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
 <!--[if lt IE 9]>
       <script src="../../dist/js/vendor/html5shiv.js"></script>
@@ -102,61 +103,72 @@ body {
 									</div>
 								</div>
 								<div class="form-group">
-									<label  class="col-lg-2 control-label">训练比重：</label>
+									<label class="col-lg-2 control-label">训练比重：</label>
 									<div class="col-lg-10">
-									<select id="train_percent" class=" form-control">
-							          <option value="0.9">90%</option>
-							          <option value="0.8">80%</option>
-							          <option value="0.7">70%</option>
-							          <option value="0.6">60%</option>
-							        </select>
-							        </div>
+										<select id="train_percent" class=" form-control">
+											<option value="0.9">90%</option>
+											<option value="0.8">80%</option>
+											<option value="0.7">70%</option>
+											<option value="0.6">60%</option>
+										</select>
+									</div>
 								</div>
 								<div class="form-group">
-									<label  class="col-lg-2 control-label">矩阵分解秩：</label>
+									<label class="col-lg-2 control-label">矩阵分解秩：</label>
 									<div class="col-lg-10">
-									<select id="ranks" class="select-default select form-control">
-							          <option value="8">8</option>
-							          <option value="9">9</option>
-							          <option value="10">10</option>
-							          <option value="11">11</option>
-							        </select>
-							        </div>
+										<select id="ranks" class=" form-control">
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+										</select>
+									</div>
 								</div>
 								<div class="form-group">
-									<label  class="col-lg-2 control-label">正则系数：</label>
+									<label class="col-lg-2 control-label">正则系数：</label>
 									<div class="col-lg-10">
-									<select id="lambda" class="select-default select form-control">
-							          <option value="0.1">0.1</option>
-							          <option value="0.2">0.2</option>
-							          <option value="0.5">0.5</option>
-							          <option value="1">1</option>
-							          <option value="2">2</option>
-							          <option value="3">3</option>
-							          <option value="5">5</option>
-							          <option value="10">10</option>
-							          <option value="11">11</option>
-							        </select>
-							        </div>
+										<select id="lambda" class=" form-control">
+											<option value="0.1">0.1</option>
+											<option value="0.2">0.2</option>
+											<option value="0.5">0.5</option>
+											<option value="1">1</option>
+											<option value="2">2</option>
+											<option value="3">3</option>
+											<option value="5">5</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+										</select>
+									</div>
 								</div>
 								<div class="form-group">
-									<label  class="col-lg-2 control-label">循环次数：</label>
+									<label class="col-lg-2 control-label">循环次数：</label>
 									<div class="col-lg-10">
-									<select id="iterations" class="select-default select form-control">
-							          <option value="8">8</option>
-							          <option value="9">9</option>
-							          <option value="10">10</option>
-							          <option value="11">11</option>
-							          <option value="20">20</option>
-							        </select>
-							        </div>
+										<select id="iterations" class=" form-control">
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="10">10</option>
+											<option value="11">11</option>
+											<option value="20">20</option>
+										</select>
+									</div>
 								</div>
 								<div class="form-group">
 									<div class="col-lg-offset-2 col-lg-10">
-										<input id="train_model" class="btn btn-default" type="button" value="建模">
+										<input id="train_model" class="btn btn-default" type="button"
+											value="建模">
 									</div>
 								</div>
 							</form>
+						</div>
+						<div class="modal fade" id="myModal1" tabindex="-1" role="dialog"
+							aria-labelledby="myModalLabel" >
+							<div class="modal-dialog" role="document">
+								<div class="modal-content" >
+									<div class="progress progress-striped active" style="margin-bottom:0px; height:25px;border-radius: 5px;">
+										<div id="progressId" class="progress-bar" style="width: 1%;height:100%;">0%</div>
+									</div>
+								</div>
+							</div>
 						</div>
 						<!-- /.col-md-8 -->
 					</div>
@@ -174,6 +186,7 @@ body {
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script src="js/jquery.min.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<!-- <script src="js/jquery-ui.js"></script> -->
 	<script src="js/flat-ui.js"></script>
 	<script src="js/als.js"></script>
 </body>

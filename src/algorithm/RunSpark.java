@@ -4,11 +4,35 @@ import java.io.IOException;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import util.Utils;
-
-public class RunSpark {
-	
+/**
+ * 使用多线程运行算法调用，前台可以直接返回
+ * @author fansy
+ *
+ */
+public class RunSpark implements Runnable{
+	private Logger log = LoggerFactory.getLogger(getClass());
+	private String input;
+	private String output;
+	private String train_percent;
+	private String ranks;
+	private String lambda;
+	private String iteration;
+	public RunSpark() {
+	}
+	public RunSpark(String input,String output,String train_percent,
+			String ranks,String lambda,String iteration)
+	{
+		this.input= input;
+		this.output=output;
+		this.train_percent = train_percent;
+		this.ranks = ranks;
+		this.lambda= lambda;
+		this.iteration = iteration;
+	}
 	public static void main(String[] args) throws IllegalArgumentException, IOException {
 		//<input> <output> <train_percent> <ranks> <lambda> <iteration>
 		String[] inputArgs= new String[]{
@@ -58,6 +82,18 @@ public class RunSpark {
         };
 		FileSystem.get(Utils.getConf()).delete(new Path(output), true);
 		return Utils.runSpark(runArgs);
+	}
+
+	@Override
+	public void run() {
+		try {
+//			runALS(input, output, train_percent, ranks, lambda, iteration);
+			log.info("算法已开始运行");
+		} catch (IllegalArgumentException 
+//				| IOException
+				e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
