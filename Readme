@@ -1,0 +1,4 @@
+基于Spark ALS在线电影推荐系统
+
+所用技术：
+Bootstrap、flat-ui 、 Servlet、Spark、Hadoop
