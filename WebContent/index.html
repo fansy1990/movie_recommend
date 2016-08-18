@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Flat UI Free</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Loading Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+
+
+<!-- Loading Flat UI -->
+<link href="css/flat-ui.css" rel="stylesheet">
+
+   <link rel="shortcut icon" href="../../dist/img/favicon.ico">
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+<!--[if lt IE 9]>
+      <script src="../../dist/js/vendor/html5shiv.js"></script>
+      <script src="../../dist/js/vendor/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+	<style>
+body {
+	min-height: 200px;
+	padding-top: 70px;
+}
+</style>
+
+	<!-- Static navbar -->
+	<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+					data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+				</button>
+				<a class="navbar-brand">在线Saprk ALS电影推荐系统</a>
+			</div>
+			<!--   <div class="navbar-collapse collapse"> -->
+			<!--  <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="../navbar/">Default</a></li>
+            <li class="active"><a href="./">Static top</a></li>
+            <li><a href="../navbar-fixed-top/">Fixed top</a></li>
+          </ul> -->
+			<!-- </div> -->
+			<!--/.nav-collapse -->
+		</div>
+	</div>
+
+
+	<div class="container">
+
+		<!-- Main component for a primary marketing message or call to action -->
+		<div class="tabbable">
+			<!-- Only required for left/right tabs -->
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#tab1" data-toggle="tab">简介</a></li>
+				<li><a href="#tab2" data-toggle="tab">建模</a></li>
+				<li><a href="#tab3" data-toggle="tab">推荐</a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="tab1">
+					<!-- 系统简介 -->
+					<br>
+					<p>在线Saprk ALS电影推荐系统：使用Spark MLlib中的ALS算法对ratings.dat文件进行建模
+						，建模后，读取模型user、product features数据来对用户进行推荐。 本版包含功能：
+					<li>1）建立ALS推荐模型；</li>
+					<li>2）在线推荐；</li> 存在问题：
+					<li>1）数据加载路径等硬编码在java文件中，应该放入配置文件；</li>
+					<li>2）推荐只能针对存在的用户推荐，不能采用匿名推荐（新用户推荐）；</li>
+					</p>
+				</div>
+				<div class="tab-pane" id="tab2">
+					<br>
+					<div class="row">
+						<div class="col-md-8 col-md-offset-1">
+							<p>输入或选择参数，提交Spark任务，进行建模：</p>
+							<form class="form-horizontal" role="form">
+								<div class="form-group">
+									<label for="inputEmail1" class="col-lg-2 control-label">输入路径：</label>
+									<div class="col-lg-10">
+										<input type="text" class="form-control" id="input_id"
+											placeholder="hdfs://master:8020/ratings.dat">
+									</div>
+								</div>
+								<div class="form-group">
+									<label  class="col-lg-2 control-label">训练比重：</label>
+									<div class="col-lg-10">
+									<select id="train_percent" class=" form-control">
+							          <option value="0.9">90%</option>
+							          <option value="0.8">80%</option>
+							          <option value="0.7">70%</option>
+							          <option value="0.6">60%</option>
+							        </select>
+							        </div>
+								</div>
+								<div class="form-group">
+									<label  class="col-lg-2 control-label">矩阵分解秩：</label>
+									<div class="col-lg-10">
+									<select id="ranks" class="select-default select form-control">
+							          <option value="8">8</option>
+							          <option value="9">9</option>
+							          <option value="10">10</option>
+							          <option value="11">11</option>
+							        </select>
+							        </div>
+								</div>
+								<div class="form-group">
+									<label  class="col-lg-2 control-label">正则系数：</label>
+									<div class="col-lg-10">
+									<select id="lambda" class="select-default select form-control">
+							          <option value="0.1">0.1</option>
+							          <option value="0.2">0.2</option>
+							          <option value="0.5">0.5</option>
+							          <option value="1">1</option>
+							          <option value="2">2</option>
+							          <option value="3">3</option>
+							          <option value="5">5</option>
+							          <option value="10">10</option>
+							          <option value="11">11</option>
+							        </select>
+							        </div>
+								</div>
+								<div class="form-group">
+									<label  class="col-lg-2 control-label">循环次数：</label>
+									<div class="col-lg-10">
+									<select id="iterations" class="select-default select form-control">
+							          <option value="8">8</option>
+							          <option value="9">9</option>
+							          <option value="10">10</option>
+							          <option value="11">11</option>
+							          <option value="20">20</option>
+							        </select>
+							        </div>
+								</div>
+								<div class="form-group">
+									<div class="col-lg-offset-2 col-lg-10">
+										<input id="train_model" class="btn btn-default" type="button" value="建模">
+									</div>
+								</div>
+							</form>
+						</div>
+						<!-- /.col-md-8 -->
+					</div>
+					<!-- /.row -->
+				</div>
+				<div class="tab-pane" id="tab3">
+					<p>Howdy, I'm in Section 3.</p>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- /container -->
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="js/jquery.min.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="js/flat-ui.js"></script>
+	<script src="js/als.js"></script>
+</body>
+</html>
