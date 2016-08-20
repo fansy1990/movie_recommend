@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Flat UI Free</title>
+<title>Movie Recommend</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- Loading Bootstrap -->
@@ -99,6 +99,7 @@ body {
 									<label for="inputEmail1" class="col-lg-2 control-label">输入路径：</label>
 									<div class="col-lg-10">
 										<input type="text" class="form-control" id="input_id"
+											value="hdfs://master:8020/user/root/ratings.dat"
 											placeholder="hdfs://master:8020/ratings.dat">
 									</div>
 								</div>
@@ -161,15 +162,31 @@ body {
 							</form>
 						</div>
 						<div class="modal fade" id="myModal1" tabindex="-1" role="dialog"
-							aria-labelledby="myModalLabel" >
+							aria-labelledby="myModalLabel">
 							<div class="modal-dialog" role="document">
-								<div class="modal-content" >
-									<div class="progress progress-striped active" style="margin-bottom:0px; height:25px;border-radius: 5px;">
-										<div id="progressId" class="progress-bar" style="width: 1%;height:100%;">0%</div>
+								<div class="modal-content">
+									<div class="progress progress-striped active"
+										style="margin-bottom: 0px; height: 25px; border-radius: 5px;">
+										<div id="progressId" class="progress-bar"
+											style="width: 1%; height: 100%;">0%</div>
 									</div>
 								</div>
 							</div>
 						</div>
+						<!-- modal fade  -->
+						<div class="modal fade" id="myModal2" tabindex="-1" role="dialog"
+							aria-labelledby="myModalLabel2">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content">
+									<div class="alert alert-warning" style="margin-bottom: 0px;">
+										<a href="#" onclick="closeModal('myModal2')" class="close" > &times; </a> 
+										<div id="tipId">模型训练完成！</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+						<!-- modal fade  -->
 						<!-- /.col-md-8 -->
 					</div>
 					<!-- /.row -->

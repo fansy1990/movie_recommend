@@ -1,33 +1,66 @@
 
+/**
+ * 设置进度条
+ * @param id
+ * @param value
+ */
 function setProgress(id,value){
 	$("#"+id).css("width",value);
 	$("#"+id).html(value);
 }
 
 /**
+ * 开启模态框
+ * @param id
+ */
+function openModal(id){
+	$('#'+id).on('show.bs.modal', function(){
+        var $this = $(this);
+        var $modal_dialog = $this.find('.modal-dialog');
+        // 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
+        $this.css('display', 'block');
+        $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
+   });
+	$('#'+id).modal({backdrop: 'static', keyboard: false});
+}
+/**
+ * 关闭模态框
+ * @param id
+ */
+function closeModal(id){
+	$('#'+id).modal("hide");
+}
+
+/**
 	 * 请求任务进度
 	 */
-function queryTaskProgress(){
+function queryTaskProgress(appId){
 	// ajax 发送请求获取任务运行状态，如果返回运行失败或成功则关闭弹框
 	$.ajax({
 		type : "POST",
 		url : "Monitor",
 //			dataType : "json",
 		async:false,// 同步执行
+		data:{APPID:appId},
 		success : function(data) {
-			console.info("success:"+data);
-//			$("#progressId").progressbar({value: parseInt(data)});
-//			$("#progressId").css("width",data+"%");
-//			$("#progressId").html(data+"%");
-			setProgress("progressId", data+"%");
-			if(parseInt(data)-100>=0){
+//			console.info("success:"+data);
+			if(data.indexOf("%")==-1){// 不包含 ，任务运行完成（失败或成功）
 				clearTimeout(t);// 关闭计时器
 				// 关闭弹窗进度条
 				$('#myModal1').modal("hide");
+				// 开启提示条模态框
+			
+				$('#tipId').html(data=="FINISHED"?"模型训练完成！": 
+					(data=="FAILED"?"调用建模失败!":"模型训练被杀死！"));
+				
+				openModal("myModal2");
 				console.info("closed!");
 				return ;
 			}
-			t=setTimeout("queryTaskProgress()",100);
+			
+			setProgress("progressId", data);
+			// 进度查询每次间隔1500ms
+			t=setTimeout("queryTaskProgress('"+appId+"')",1500);
 		},
 		error: function(data){
 			console.info("error"+data);
@@ -54,39 +87,38 @@ $(function() {
 				var iterations = $('#iterations').val();
 				// 发送 ajax请求，调用程序运行
 				// 改程序运行为线程模式，直接返回
-				var ret = false;
+				var ret = "null";
 				$.ajax({
 					type : "POST",
 					url : "RunALS",
 					async:false,// 同步执行
 					data : {input:input,trainPercent:train_percent,ranks:ranks,lambda:lambda,iterations:iterations},
 //					dataType : "json",
-					success : function(data) {
-						console.info("success:"+data);
-						ret = data=="true"?true:false;
+					success : function(data) {// data 返回appId
+						console.info("success:"+data);//
+						ret = data=="null"?"null":data;
 					},
 					error: function(data){
 						console.info("error"+data);
-						ret =data=="true"?true:false ;
+						ret = data=="null"?"null":data;
 					}
 				});
 				// 调用失败
-				if(!ret) return ;
+				if(ret=="null") {// 弹出模态窗
+					$('#tipId').html="调用建模失败！";
+					openModal("myModal2");
+					return ;
+				}
 				// 弹出窗提示程序正在运行
 				setProgress("progressId", "0%");
-				$('#myModal1').on('show.bs.modal', function(){
-			          var $this = $(this);
-			          var $modal_dialog = $this.find('.modal-dialog');
-			          // 关键代码，如没将modal设置为 block，则$modala_dialog.height() 为零
-			          $this.css('display', 'block');
-			          $modal_dialog.css({'margin-top': Math.max(0, ($(window).height() - $modal_dialog.height()) / 2) });
-			     });
-				$('#myModal1').modal({backdrop: 'static', keyboard: false});
+				
+				// 开启进度条模态框
+				openModal("myModal1");
 				
 				// 定时请求任务进度
-				t=setTimeout("queryTaskProgress()",1000);
+				t=setTimeout("queryTaskProgress('"+ret+"')",1000);
 
-				console.info("clicked:" + input + "," + train_percent);
+//				console.info("trainPercent:" + train_percent);
 			});
 	
 	

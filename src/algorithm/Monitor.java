@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import util.Utils;
+
 /**
  * Servlet implementation class Monitor
  */
@@ -20,8 +22,6 @@ public class Monitor extends HttpServlet {
 	private Logger log = LoggerFactory.getLogger(getClass());
 	private static final long serialVersionUID = 1L;
 	
-	private static int progress=1;
-       
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -33,16 +33,14 @@ public class Monitor extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String appId = request.getParameter("APPID");
+//		log.info("appId:"+appId);
+		String progress = Utils.getAppStatus(appId);
+//		log.info("appId:"+appId+",进度："+progress);
 		
-		log.info("进度："+progress);
-		if(progress>=100){
-			log.info("算法已结束");
-			progress =0;
-		}
 		// 打印输出
 		PrintWriter out = response.getWriter();
-		++progress;
-		out.write(progress+"");
+		out.write(progress);
 		out.flush();
 		
 		

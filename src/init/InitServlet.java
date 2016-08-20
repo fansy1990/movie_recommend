@@ -25,6 +25,7 @@ public class InitServlet extends HttpServlet {
         // 初始化Movies相关
         System.out.println("initial begin...");
         try {
+        	Utils.getConf();// 在初始化的时候调用一次
 			Utils.init();
 		} catch (IOException e) {
 			System.err.println("初始化异常.......");

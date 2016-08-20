@@ -8,18 +8,23 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.yarn.api.records.ApplicationId;
+//import org.apache.hadoop.yarn.api.records.ApplicationReport;
+//import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 import org.apache.spark.SparkConf;
 import org.apache.spark.deploy.yarn.Client;
 import org.apache.spark.deploy.yarn.ClientArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.fommil.netlib.BLAS;
 import com.google.common.collect.Sets;
 
+import algorithm.MonitorThread;
 import datastructure.FixSizePriorityQueue;
 import model.Movie;
 
@@ -28,9 +33,9 @@ public class Utils {
 	public static final String COLON = ":";
 	public static final String COMMA = ",";
 	private static final String SUBFIX = "part-00000";
-	public static final String output = "hdfs://node1:8020/user/fansy/als_output";
-	public static final String MOVIESDATA = "hdfs://node1:8020/user/root/movies.dat";
-	public static final String RATINGSDATA = "hdfs://node1:8020/user/root/ratings.dat";
+	public static final String output = "hdfs://master:8020/user/fansy/als_output";
+	public static final String MOVIESDATA = "hdfs://master:8020/user/root/movies.dat";
+	public static final String RATINGSDATA = "hdfs://master:8020/user/root/ratings.dat";
 
 	private static final String userFeaturePath = output + "/userFeatures";
 	private static final String productFeaturePath = output + "/productFeatures";
@@ -38,6 +43,12 @@ public class Utils {
 	private static final int TOPN = 10;
 
 	private static Configuration configuration = null;
+
+	private static Logger log = LoggerFactory.getLogger(Utils.class);
+	
+	
+	// 允许多用户提交spark任务 TODO 还应解决模型输出目录问题
+	private static Map<String, String> allAppStatus = new HashMap<>();
 
 	/**
 	 * 获取Configuration配置文件
@@ -49,10 +60,10 @@ public class Utils {
 
 			configuration = new Configuration();
 			configuration.setBoolean("mapreduce.app-submission.cross-platform", true);
-			configuration.set("fs.defaultFS", "hdfs://node1:8020");
+			configuration.set("fs.defaultFS", "hdfs://master:8020");
 			configuration.set("mapreduce.framework.name", "yarn");
-			configuration.set("yarn.resourcemanager.address", "node1:8032");
-			configuration.set("yarn.resourcemanager.scheduler.address", "node1:8030");
+			configuration.set("yarn.resourcemanager.address", "master:8032");
+			configuration.set("yarn.resourcemanager.scheduler.address", "master:8030");
 			configuration.set("mapreduce.jobhistory.address", "node2:10020");
 		}
 
@@ -60,26 +71,70 @@ public class Utils {
 	}
 
 	/**
-	 * 调用Spark
+	 * 调用Spark 加入监控模块
 	 * 
 	 * @param args
-	 * @return
+	 * @return Application ID字符串
 	 */
-	public static boolean runSpark(String[] args) {
+	public static String runSpark(String[] args) {
+		StringBuffer buff = new StringBuffer();
+		for(String arg:args){
+			buff.append(arg).append(",");
+		}
+		log.info("runSpark args:"+buff.toString());
 		try {
 			System.setProperty("SPARK_YARN_MODE", "true");
 			SparkConf sparkConf = new SparkConf();
-			sparkConf.set("spark.yarn.jar", "hdfs://node1:8020/user/root/spark-assembly-1.4.1-hadoop2.6.0.jar");
+			sparkConf.set("spark.yarn.jar", "hdfs://master:8020/user/root/spark-assembly-1.4.1-hadoop2.6.0.jar");
 			sparkConf.set("spark.yarn.scheduler.heartbeat.interval-ms", "1000");
 
 			ClientArguments cArgs = new ClientArguments(args, sparkConf);
 
-			new Client(cArgs, getConf(), sparkConf).run();
+			Client client = new Client(cArgs, getConf(), sparkConf);
+			// client.run(); // 去掉此种调用方式，改为有监控的调用方式
+
+			/**
+			 * 调用Spark ，含有监控
+			 */
+			ApplicationId appId = null;
+			try{
+				appId = client.submitApplication();
+			}catch(Throwable e){
+				e.printStackTrace();
+				//  返回null
+				return null;
+			}
+			// 开启监控线程
+			updateAppStatus(appId.toString(),"2%" );// 提交任务完成，返回2%
+			log.info(allAppStatus.toString());
+			new Thread(new MonitorThread(appId,client)).start();
+			return appId.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
-		return true;
+	}
+
+	/**
+	 * 参考Spark实现删除相关文件代码
+	 * 
+	 * TODO Tomcat关闭时，如果还有Spark程序还在运行，那么删除不了文件 
+	 * 
+	 * @param appId
+	 */
+	public static void cleanupStagingDir(ApplicationId appId) {
+		String appStagingDir = Client.SPARK_STAGING() + Path.SEPARATOR + appId.toString();
+
+		try {
+			Path stagingDirPath = new Path(appStagingDir);
+			FileSystem fs = FileSystem.get(getConf());
+			if (fs.exists(stagingDirPath)) {
+				log.info("Deleting staging directory " + stagingDirPath);
+				fs.delete(stagingDirPath, true);
+			}
+		} catch (IOException e) {
+			log.warn("Failed to cleanup staging dir " + appStagingDir, e);
+		}
 	}
 
 	/**
@@ -143,7 +198,8 @@ public class Utils {
 		for (int candidate : candidates) {
 			movie = movies.get(candidate);
 			pFeature = productFeatures.get(candidate);
-			if(pFeature==null) continue;
+			if (pFeature == null)
+				continue;
 			score = blas.ddot(pFeature.length, uFeature, 1, pFeature, 1);
 			movie.setRated((float) score);
 			recommend.add(movie);
@@ -166,7 +222,7 @@ public class Utils {
 		InputStreamReader inputReader = null;
 		FileStatus[] files = fs.listStatus(path);
 		for (FileStatus file : files) {
-			if(file.isDirectory()|| file.getLen()<=0){
+			if (file.isDirectory() || file.getLen() <= 0) {
 				continue;
 			}
 			try {
@@ -286,9 +342,28 @@ public class Utils {
 
 		int uid = 1;
 		List<Movie> recMovies = predict(uid);
-		for(Movie m:recMovies){
+		for (Movie m : recMovies) {
 			System.out.println(m);
 		}
 		System.out.println(recMovies.size());
+	}
+
+	/**
+	 * 获取appId的状态
+	 * @param appId
+	 * @return
+	 */
+	public static String getAppStatus(String appId) {
+		return allAppStatus.get(appId);
+	}
+
+	/**
+	 * 更新appId状态
+	 * @param appId
+	 * @param appStatus
+	 */
+	public synchronized static void updateAppStatus(String appId, String appStatus) {
+		// 不管是否已经存在改appId，直接更新即可
+		allAppStatus.put(appId, appStatus);
 	}
 }

@@ -32,24 +32,24 @@ public class RunALS extends HttpServlet {
 //		<input> <output> <train_percent> <ranks> <lambda> <iteration>
 		String input = request.getParameter("input");
 		String output = Utils.output;
-		String train_percent = request.getParameter("train_percent");
+		String train_percent = request.getParameter("trainPercent");
 		String ranks = request.getParameter("ranks");
 		String lambda = request .getParameter("lambda");
-		String iteration = request.getParameter("iteration");
+		String iteration = request.getParameter("iterations");
 		
-		boolean flag =true;
+		String appId ="null";
 		try{
-			// 启动线程运行调度任务
-			new Thread(new RunSpark(input, output, train_percent, ranks, lambda, iteration)).start();
+			// 启动任务, 启动成功后返回任务appId
+			appId = RunSpark.runALS(input, output, train_percent, ranks, lambda, iteration);
 		}catch(Exception e){
-			flag= false;
+			appId = "null";
 			e.printStackTrace();
 		}
 		
 		
 		// 打印输出
 		PrintWriter out = response.getWriter();
-		out.write(flag?"true":"false");
+		out.write(appId==null? "null":appId);
 		out.flush();
 		
 		
