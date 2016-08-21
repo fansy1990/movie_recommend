@@ -14,6 +14,7 @@ public class Movie implements Comparable<Movie>{
 		this.id = id;
 		this.title = title;
 		this.genres=genres;
+		this.rated =0.0f;
 	}
 	public Integer getId() {
 		return id;

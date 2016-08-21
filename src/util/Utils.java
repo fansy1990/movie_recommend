@@ -3,6 +3,7 @@ package util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -168,9 +169,10 @@ public class Utils {
 	 * 预测 如果没有初始化，则进行初始化
 	 * 
 	 * @param uid
+	 * @param recNum
 	 * @return
 	 */
-	public static List<Movie> predict(int uid) {
+	public static List<Movie> predict(int uid,int recNum) {
 		if (userFeatures.size() <= 0 || productFeatures.size() <= 0) {
 			try {
 				userFeatures = getModelFeatures(userFeaturePath);
@@ -189,7 +191,7 @@ public class Utils {
 		Set<Integer> candidates = Sets.difference((Set<Integer>) allMovieIds, userWithRatedMovies.get(uid));
 
 		// 2. 构造推荐排序堆栈
-		FixSizePriorityQueue<Movie> recommend = new FixSizePriorityQueue<Movie>(TOPN);
+		FixSizePriorityQueue<Movie> recommend = new FixSizePriorityQueue<Movie>(recNum);
 		Movie movie = null;
 		double[] pFeature = null;
 		double[] uFeature = userFeatures.get(uid);
@@ -288,7 +290,7 @@ public class Utils {
 				id = Integer.parseInt(words[0]);
 				movies.put(id, new Movie(id, words[1], words[2]));
 			}
-			System.out.println("Movies data size:" + movies.size());
+			log.info("Movies data size:" + movies.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -320,7 +322,7 @@ public class Utils {
 				}
 
 			}
-			System.out.println("Users data size:" + userWithRatedMovies.size());
+			log.info("Users data size:" + userWithRatedMovies.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -341,7 +343,7 @@ public class Utils {
 		init();
 
 		int uid = 1;
-		List<Movie> recMovies = predict(uid);
+		List<Movie> recMovies = predict(uid,TOPN);
 		for (Movie m : recMovies) {
 			System.out.println(m);
 		}
@@ -365,5 +367,19 @@ public class Utils {
 	public synchronized static void updateAppStatus(String appId, String appStatus) {
 		// 不管是否已经存在改appId，直接更新即可
 		allAppStatus.put(appId, appStatus);
+	}
+	/**
+	 * 查找给定用户评价过的电影
+	 * @param userId
+	 * @return
+	 */
+	public static List<Movie> check(int userId) {
+		Set<Integer> ratedMovieIds = userWithRatedMovies.get(userId);
+		List<Movie> moviesList = new ArrayList<>();
+		for(Integer movie:ratedMovieIds){
+			moviesList.add(movies.get(movie));
+		}
+		
+		return moviesList;
 	}
 }

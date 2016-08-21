@@ -73,12 +73,12 @@ body {
 		<div class="tabbable">
 			<!-- Only required for left/right tabs -->
 			<ul class="nav nav-tabs">
-				<li class="active"><a href="#tab1" data-toggle="tab">简介</a></li>
+				<li><a href="#tab1" data-toggle="tab">简介</a></li>
 				<li><a href="#tab2" data-toggle="tab">建模</a></li>
-				<li><a href="#tab3" data-toggle="tab">推荐</a></li>
+				<li class="active"><a href="#tab3" data-toggle="tab">推荐</a></li>
 			</ul>
 			<div class="tab-content">
-				<div class="tab-pane active" id="tab1">
+				<div class="tab-pane" id="tab1">
 					<!-- 系统简介 -->
 					<br>
 					<p>在线Saprk ALS电影推荐系统：使用Spark MLlib中的ALS算法对ratings.dat文件进行建模
@@ -179,7 +179,8 @@ body {
 							<div class="modal-dialog" role="document">
 								<div class="modal-content">
 									<div class="alert alert-warning" style="margin-bottom: 0px;">
-										<a href="#" onclick="closeModal('myModal2')" class="close" > &times; </a> 
+										<a href="#" onclick="closeModal('myModal2')" class="close">
+											&times; </a>
 										<div id="tipId">模型训练完成！</div>
 									</div>
 
@@ -191,8 +192,49 @@ body {
 					</div>
 					<!-- /.row -->
 				</div>
-				<div class="tab-pane" id="tab3">
-					<p>Howdy, I'm in Section 3.</p>
+				<div class="tab-pane active" id="tab3">
+					<br>
+					<div class="row">
+						<div class="col-md-8 col-md-offset-1">
+							<p>输入用户id，进行推荐或查询用户看过的电影</p>
+							<div class="form-group">
+								<label for="inputEmail1" class="col-lg-2 control-label">用户ID：</label>
+								<div class="col-lg-2">
+									<input type="text" class="form-control" id="userId" value="1"
+										placeholder="1">
+								</div>
+								<div class="col-lg-2">
+									<input type="button" class="btn btn-default " id="checkId"
+										value="查询">
+								</div>
+								<label for="inputEmail1" class="col-lg-2 control-label">推荐个数：</label>
+								<div class="col-lg-2">
+									<select id="recommendNumId" class=" form-control">
+											<option value="10">10</option>
+											<option value="3">3</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="6">6</option>
+											<option value="7">7</option>
+											<option value="8">8</option>
+											<option value="9">9</option>
+											<option value="11">11</option>
+											<option value="20">20</option>
+										</select>
+								</div>
+								<div class="col-lg-2">
+									<input type="button" class="btn btn-default" id="recommendId"
+										value="推荐">
+								</div>
+
+							</div>
+
+						</div>
+						<!-- col-md-8  -->
+						<div class="col-md-10 col-md-offset-1" id="movieResultId">
+							
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -122,5 +122,87 @@ $(function() {
 			});
 	
 	
+	// 绑定查询button
+	$("#checkId").click(function(){
+		var userId = $('#userId').val();
+		var ret =null;
+		$.ajax({
+			type : "POST",
+			url : "Recommend",
+			async:false,// 同步执行
+			data : {userId:userId,flag:"check"},
+//			dataType : "json",
+			success : function(data) {// data 返回appId
+				ret = data;
+			},
+			error: function(data){
+				console.info("error"+data);
+				ret = data=="null"?"null":data;
+			}
+		});
+		
+		ret= ret.split("::");
+		
+		var showResultHtml = '<br>'+
+							'<p>用户评分过的电影有：'+ret[0]+'个</p>'+
+							'<div class="table-responsive">' +
+								'<table class="table table-striped">' +
+									'<thead>'+
+										'<tr>'+
+											'<th>MovieId</th>'+
+											'<th>电影名</th>'+
+											'<th>标签</th>'+
+											'<th>评分</th>'+
+										'</tr>'+
+									'</thead>'+
+									'<tbody>'+
+									ret[1] + 
+									'</tbody>'+
+								'</table>'+
+							'</div>';
+		$('#movieResultId').html(showResultHtml);
+	});
+	
+	
+	// 绑定推荐button
+	$("#recommendId").click(function(){
+		var userId = $('#userId').val();
+		var recommendNum = $('#recommendNumId').val();
+		var ret =null;
+		$.ajax({
+			type : "POST",
+			url : "Recommend",
+			async:false,// 同步执行
+			data : {userId:userId,flag:"recommend",recommendNum:recommendNum},
+//			dataType : "json",
+			success : function(data) {// data 返回appId
+				ret = data;
+			},
+			error: function(data){
+				console.info("error"+data);
+				ret = data=="null"?"null":data;
+			}
+		});
+		
+		
+		var showResultHtml = '<br>'+
+							'<p>数据如下：</p>'+
+							'<div class="table-responsive">' +
+								'<table class="table table-striped">' +
+									'<thead>'+
+										'<tr>'+
+											'<th>MovieId</th>'+
+											'<th>电影名</th>'+
+											'<th>标签</th>'+
+											'<th>评分</th>'+
+										'</tr>'+
+									'</thead>'+
+									'<tbody>'+
+									ret + 
+									'</tbody>'+
+								'</table>'+
+							'</div>';
+		$('#movieResultId').html(showResultHtml);
+	});
 	
 });
