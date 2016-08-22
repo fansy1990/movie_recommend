@@ -1,5 +1,9 @@
 package model;
 
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.commons.beanutils.BeanUtils;
+
 public class Movie implements Comparable<Movie>{
 //MovieID::Title::Genres
 	private Integer id;
@@ -53,4 +57,15 @@ public class Movie implements Comparable<Movie>{
 			return this.id+"|"+this.title+"|"+this.genres+"|"+this.rated;
 		}
 	
+	public Movie deepCopy(){
+		try {
+			Movie copy  =  (Movie) BeanUtils.cloneBean(this);
+			return copy;
+		} catch (IllegalAccessException | InstantiationException | InvocationTargetException
+				| NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

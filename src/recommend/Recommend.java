@@ -2,6 +2,7 @@ package recommend;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -39,7 +40,13 @@ public class Recommend extends HttpServlet {
 		List<Movie> rec =null;
 		if("recommend".equals(flag)){
 			recNum = request.getParameter("recommendNum");
-			rec= Utils.predict(Integer.parseInt(uid),Integer.parseInt(recNum));
+			try {
+				rec= Utils.predict(Integer.parseInt(uid),Integer.parseInt(recNum));
+			} catch (NumberFormatException | IllegalAccessException | InstantiationException | InvocationTargetException
+					| NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}else{
 			rec = Utils.check(Integer.parseInt(uid));
 		}

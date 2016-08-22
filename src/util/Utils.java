@@ -3,12 +3,14 @@ package util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -171,8 +173,12 @@ public class Utils {
 	 * @param uid
 	 * @param recNum
 	 * @return
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws InstantiationException 
+	 * @throws IllegalAccessException 
 	 */
-	public static List<Movie> predict(int uid,int recNum) {
+	public static List<Movie> predict(int uid,int recNum) throws IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
 		if (userFeatures.size() <= 0 || productFeatures.size() <= 0) {
 			try {
 				userFeatures = getModelFeatures(userFeaturePath);
@@ -198,7 +204,7 @@ public class Utils {
 		double score = 0.0;
 		BLAS blas = BLAS.getInstance();
 		for (int candidate : candidates) {
-			movie = movies.get(candidate);
+			movie = movies.get(candidate).deepCopy();
 			pFeature = productFeatures.get(candidate);
 			if (pFeature == null)
 				continue;
@@ -339,7 +345,7 @@ public class Utils {
 	private static Map<Integer, double[]> userFeatures = new HashMap<>();
 	private static Map<Integer, double[]> productFeatures = new HashMap<>();
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException {
 		init();
 
 		int uid = 1;
