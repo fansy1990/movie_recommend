@@ -31,7 +31,7 @@ public class RunALS extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 //		<input> <output> <train_percent> <ranks> <lambda> <iteration>
 		String input = request.getParameter("input");
-		String output = Utils.output;
+		String output = Utils.getProperty("output.data");
 		String train_percent = request.getParameter("trainPercent");
 		String ranks = request.getParameter("ranks");
 		String lambda = request .getParameter("lambda");

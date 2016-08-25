@@ -73,19 +73,19 @@ body {
 		<div class="tabbable">
 			<!-- Only required for left/right tabs -->
 			<ul class="nav nav-tabs">
-				<li><a href="#tab1" data-toggle="tab">简介</a></li>
+				<li class="active"><a href="#tab1" data-toggle="tab">简介</a></li>
 				<li><a href="#tab2" data-toggle="tab">建模</a></li>
-				<li class="active"><a href="#tab3" data-toggle="tab">推荐</a></li>
+				<li ><a href="#tab3" data-toggle="tab">推荐</a></li>
 			</ul>
 			<div class="tab-content">
-				<div class="tab-pane" id="tab1">
+				<div class="tab-pane active" id="tab1">
 					<!-- 系统简介 -->
 					<br>
 					<p>在线Saprk ALS电影推荐系统：使用Spark MLlib中的ALS算法对ratings.dat文件进行建模
 						，建模后，读取模型user、product features数据来对用户进行推荐。 本版包含功能：
 					<li>1）建立ALS推荐模型；</li>
 					<li>2）在线推荐；</li> 存在问题：
-					<li>1）数据加载路径等硬编码在java文件中，应该放入配置文件；</li>
+					<li>1）用户推荐页面的查询，查询的用户对已经评价过的电影的评分数据获取异常；</li>
 					<li>2）推荐只能针对存在的用户推荐，不能采用匿名推荐（新用户推荐）；</li>
 					</p>
 				</div>
@@ -192,7 +192,7 @@ body {
 					</div>
 					<!-- /.row -->
 				</div>
-				<div class="tab-pane active" id="tab3">
+				<div class="tab-pane " id="tab3">
 					<br>
 					<div class="row">
 						<div class="col-md-8 col-md-offset-1">

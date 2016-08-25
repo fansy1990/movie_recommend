@@ -53,18 +53,18 @@ public class MonitorThread implements Runnable {
 			// 获得ApplicationID后就说明已经是SUBMITTED状态了
 			if ( state == YarnApplicationState.ACCEPTED) {
 		        //  更新app状态
-				if(count<=20){
+				if(count<Integer.parseInt(Utils.getProperty("als.accepted.progress"))){
 					count++;
 					Utils.updateAppStatus(appId.toString(), count+"%" );
 				}
 		      }
 			if ( state == YarnApplicationState.RUNNING) {
 		        //  更新app状态
-				if(count<=90){
+				if(count<Integer.parseInt(Utils.getProperty("als.runing.progress"))){
 					count++;
 					Utils.updateAppStatus(appId.toString(), count+"%" );
 				}else {
-					Utils.updateAppStatus(appId.toString(), "90%" );
+					Utils.updateAppStatus(appId.toString(), Utils.getProperty("als.runing.progress")+"%" );
 				}
 		      }
 		}

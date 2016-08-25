@@ -52,13 +52,13 @@ public class RunSpark {
 	public static String runALS(String input,String output,String train_percent,String ranks,String lambda,
 			String iteration) throws IllegalArgumentException, IOException{
 		String[] runArgs=new String[]{
-                "--name","ALS Model Train ",
-                "--class","als.ALSModelTrainer",
-                "--driver-memory","512m",
-                "--num-executors", "2",
-                "--executor-memory", "512m",
-                "--jar","hdfs://master:8020/user/root/Spark141-als.jar",//
-                "--files","hdfs://master:8020/user/root/yarn-site.xml",
+                "--name",Utils.getProperty("als.name"),
+                "--class",Utils.getProperty("als.class"),
+                "--driver-memory",Utils.getProperty("als.driver-memory"),
+                "--num-executors", Utils.getProperty("als.num-executors"),
+                "--executor-memory",Utils.getProperty("als.executor-memory"),
+                "--jar",Utils.getProperty("als.jar"),//
+                "--files",Utils.getProperty("als.files"),
                 "--arg",input,
                 "--arg",output,
                 "--arg",train_percent,

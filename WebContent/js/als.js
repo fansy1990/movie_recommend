@@ -194,7 +194,7 @@ $(function() {
 											'<th>MovieId</th>'+
 											'<th>电影名</th>'+
 											'<th>标签</th>'+
-											'<th>评分</th>'+
+											'<th>推荐分</th>'+
 										'</tr>'+
 									'</thead>'+
 									'<tbody>'+

@@ -2,6 +2,7 @@ package util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,15 +38,10 @@ public class Utils {
 	public static final String COLON = ":";
 	public static final String COMMA = ",";
 	private static final String SUBFIX = "part-00000";
-	public static final String output = "hdfs://master:8020/user/fansy/als_output";
-	public static final String MOVIESDATA = "hdfs://master:8020/user/root/movies.dat";
-	public static final String RATINGSDATA = "hdfs://master:8020/user/root/ratings.dat";
-
-	private static final String userFeaturePath = output + "/userFeatures";
-	private static final String productFeaturePath = output + "/productFeatures";
-	public static final String RMSEPATH = output + "/rmse/" + SUBFIX;
-	private static final int TOPN = 10;
-
+	
+	private static  String userFeaturePath =null;
+	private static  String productFeaturePath = null;
+	public static  String RMSEPATH =null;
 	private static Configuration configuration = null;
 
 	private static Logger log = LoggerFactory.getLogger(Utils.class);
@@ -53,6 +50,69 @@ public class Utils {
 	// 允许多用户提交spark任务 TODO 还应解决模型输出目录问题
 	private static Map<String, String> allAppStatus = new HashMap<>();
 
+	private static Map<String, String> properties = new HashMap<>();// 配置文件加载变量
+	/**
+	 * 获取配置
+	 * @param key
+	 * @return
+	 */
+	public static String getProperty(String key){
+		return properties.get(key);
+	}
+	static{
+		// 加载配置文件
+		Properties prop = new Properties();
+		InputStream input = null;
+		try {
+			input = Utils.class.getResourceAsStream("/hadoop.properties");
+			prop.load(input);
+			
+			// hadoop configuration 
+			properties.put("mapreduce.app-submission.cross-platform", 
+					prop.getProperty("mapreduce.app-submission.cross-platform"));
+			properties.put("fs.defaultFS", prop.getProperty("fs.defaultFS"));
+			properties.put("mapreduce.framework.name", prop.getProperty("mapreduce.framework.name"));
+			properties.put("yarn.resourcemanager.address",
+					prop.getProperty("yarn.resourcemanager.address"));
+			properties.put("yarn.resourcemanager.scheduler.address", 
+					prop.getProperty("yarn.resourcemanager.scheduler.address"));
+			properties.put("mapreduce.jobhistory.address", 
+					prop.getProperty("mapreduce.jobhistory.address"));
+			
+			
+			// spark configuration
+			properties.put("spark.yarn.jar", prop.getProperty("spark.yarn.jar"));
+			properties.put("spark.yarn.scheduler.heartbeat.interval-ms",
+					prop.getProperty("spark.yarn.scheduler.heartbeat.interval-ms"));
+			
+			// spark als configuration 
+			properties.put("als.name", prop.getProperty("als.name"));
+			properties.put("als.class", prop.getProperty("als.class"));
+			properties.put("als.driver-memory", prop.getProperty("als.driver-memory"));
+			properties.put("als.num-executors", prop.getProperty("als.num-executors"));
+			properties.put("als.executor-memory", prop.getProperty("als.executor-memory"));
+			properties.put("als.jar", prop.getProperty("als.jar"));
+			properties.put("als.files", prop.getProperty("als.files"));
+			
+			// data configuration
+			properties.put("movies.data", prop.getProperty("movies.data"));
+			properties.put("ratings.data", prop.getProperty("ratings.data"));
+			properties.put("output.data", prop.getProperty("output.data"));
+
+			// spark als application status configuration
+			properties.put("als.submitted.progress", prop.getProperty("als.submitted.progress"));
+			properties.put("als.accepted.progress", prop.getProperty("als.accepted.progress"));
+			properties.put("als.runing.progress", prop.getProperty("als.runing.progress"));
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
 	/**
 	 * 获取Configuration配置文件
 	 * 
@@ -62,12 +122,14 @@ public class Utils {
 		if (configuration == null) {
 
 			configuration = new Configuration();
-			configuration.setBoolean("mapreduce.app-submission.cross-platform", true);
-			configuration.set("fs.defaultFS", "hdfs://master:8020");
-			configuration.set("mapreduce.framework.name", "yarn");
-			configuration.set("yarn.resourcemanager.address", "master:8032");
-			configuration.set("yarn.resourcemanager.scheduler.address", "master:8030");
-			configuration.set("mapreduce.jobhistory.address", "node2:10020");
+			configuration.setBoolean("mapreduce.app-submission.cross-platform", 
+					Boolean.parseBoolean(getProperty("mapreduce.app-submission.cross-platform")));
+			configuration.set("fs.defaultFS",getProperty("fs.defaultFS"));
+			configuration.set("mapreduce.framework.name", getProperty("mapreduce.framework.name"));
+			configuration.set("yarn.resourcemanager.address", getProperty("yarn.resourcemanager.address"));
+			configuration.set("yarn.resourcemanager.scheduler.address", 
+					getProperty("yarn.resourcemanager.scheduler.address"));
+			configuration.set("mapreduce.jobhistory.address", getProperty("mapreduce.jobhistory.address"));
 		}
 
 		return configuration;
@@ -88,8 +150,9 @@ public class Utils {
 		try {
 			System.setProperty("SPARK_YARN_MODE", "true");
 			SparkConf sparkConf = new SparkConf();
-			sparkConf.set("spark.yarn.jar", "hdfs://master:8020/user/root/spark-assembly-1.4.1-hadoop2.6.0.jar");
-			sparkConf.set("spark.yarn.scheduler.heartbeat.interval-ms", "1000");
+			sparkConf.set("spark.yarn.jar", getProperty("spark.yarn.jar"));
+			sparkConf.set("spark.yarn.scheduler.heartbeat.interval-ms",
+					getProperty("spark.yarn.scheduler.heartbeat.interval-ms"));
 
 			ClientArguments cArgs = new ClientArguments(args, sparkConf);
 
@@ -108,7 +171,7 @@ public class Utils {
 				return null;
 			}
 			// 开启监控线程
-			updateAppStatus(appId.toString(),"2%" );// 提交任务完成，返回2%
+			updateAppStatus(appId.toString(),getProperty("als.submitted.progress") );// 提交任务完成，返回2%
 			log.info(allAppStatus.toString());
 			new Thread(new MonitorThread(appId,client)).start();
 			return appId.toString();
@@ -278,6 +341,17 @@ public class Utils {
 	 * @throws IOException
 	 */
 	public static void init() throws IOException {
+		
+		// file path initial
+		 String output =getProperty("output.data");
+		String MOVIESDATA = getProperty("movies.data");
+		String RATINGSDATA = getProperty("ratings.data");
+
+		userFeaturePath = output + "/userFeatures";
+		productFeaturePath = output + "/productFeatures";
+		RMSEPATH = output + "/rmse/" + SUBFIX;
+		
+		
 		// 读取movies数据到：Map<movieId,Movie-descriptions>
 		Path path = new Path(MOVIESDATA);
 		FileSystem fs = FileSystem.get(getConf());
@@ -349,6 +423,7 @@ public class Utils {
 		init();
 
 		int uid = 1;
+		int TOPN=10;
 		List<Movie> recMovies = predict(uid,TOPN);
 		for (Movie m : recMovies) {
 			System.out.println(m);
