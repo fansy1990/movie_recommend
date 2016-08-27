@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 
 import algorithm.MonitorThread;
 import datastructure.FixSizePriorityQueue;
+import model.MIdRated;
 import model.Movie;
 
 public class Utils {
@@ -387,17 +388,17 @@ public class Utils {
 			String line;
 			String[] words = null;
 			int uid = -1;
-			HashSet<Integer> movieIds = null;
+			HashSet<MIdRated> movieIds = null;
 			// UserID::MovieID::Rating::Timestamp
 			while ((line = br.readLine()) != null) {
 				words = line.split(DOUBLECOLON);
 				uid = Integer.parseInt(words[0]);
 				if (userWithRatedMovies.containsKey(uid)) {
-					userWithRatedMovies.get(uid).add(Integer.parseInt(words[1]));
+					userWithRatedMovies.get(uid).add(new MIdRated(words[1],words[2]));
 
 				} else {
 					movieIds = new HashSet<>();
-					movieIds.add(Integer.parseInt(words[1]));
+					movieIds.add(new MIdRated(words[1],words[2]));
 					userWithRatedMovies.put(uid, movieIds);
 				}
 
@@ -414,7 +415,7 @@ public class Utils {
 	}
 
 	private static Map<Integer, Movie> movies = new HashMap<>();
-	private static Map<Integer, Set<Integer>> userWithRatedMovies = new HashMap<>();
+	private static Map<Integer, Set<MIdRated>> userWithRatedMovies = new HashMap<>();
 	private static Set<Integer> allMovieIds = new HashSet<>();
 	private static Map<Integer, double[]> userFeatures = new HashMap<>();
 	private static Map<Integer, double[]> productFeatures = new HashMap<>();
@@ -455,10 +456,13 @@ public class Utils {
 	 * @return
 	 */
 	public static List<Movie> check(int userId) {
-		Set<Integer> ratedMovieIds = userWithRatedMovies.get(userId);
+		Set<MIdRated> ratedMovieIds = userWithRatedMovies.get(userId);
 		List<Movie> moviesList = new ArrayList<>();
-		for(Integer movie:ratedMovieIds){
-			moviesList.add(movies.get(movie));
+		Movie ratedMovie = null;
+		for(MIdRated movie:ratedMovieIds){
+			ratedMovie = movies.get(movie.getMovieId()).deepCopy();
+			ratedMovie.setRated(movie.getRated());
+			moviesList.add(ratedMovie);
 		}
 		
 		return moviesList;
